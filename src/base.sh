@@ -78,3 +78,21 @@ function sb::apt_update {
     sb::spin "Updating Package List..." "sudo apt-get update"
 
 }
+
+# Initialise a remote server:
+# - Set the locale to UTF-8
+# - Set the timezone to UTC
+function sb::remote_init {
+
+    local locale tz
+
+    locale="en_GB.UTF-8"
+    tz="UTC"
+
+    sb::spin "Generating Locale" "sudo locale-gen ${locale}"
+
+    sb::spin "Updating Locale (UTF-8)" "sudo update-locale LANG=${locale} LC_ALL=${locale}"
+
+    sb::spin "Setting Timezone (${tz})..." "sudo timedatectl set-timezone $tz" $LOG_FILE
+
+}
