@@ -21,6 +21,20 @@ function sb::install {
 
 }
 
+# Install common packages
+function sb::install_common {
+
+    sb::install "Common Packages" apt-transport-https ca-certificates software-properties-common \
+        python-is-python3 python3-pip curl wget jq zip
+
+    if [ $? -eq 0 ]; then
+        sb::success
+    else
+        sb::fail
+    fi
+
+}
+
 # Install PHP 8.0 CLI and Composer
 function sb::install_php {
 

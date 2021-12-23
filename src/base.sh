@@ -19,6 +19,10 @@ function sb::sudo {
 
 }
 
+function sb::log {
+    less -R $SB_LOG_FILE
+}
+
 # Display a simple header
 # $1: The message to be displayed
 # $2: The character(s) to use as the outline
