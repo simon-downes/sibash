@@ -143,6 +143,9 @@ function sb::install_aws_cli {
         sb::fail
     fi
 
+    echo ""
+    sb::install_aws_vault
+
 }
 
 function sb::install_aws_vault {
@@ -157,10 +160,18 @@ function sb::install_aws_vault {
     # find latest version
     latest=$(curl -fs https://api.github.com/repos/99designs/aws-vault/releases/latest | jq --raw-output '.tag_name' | cut -c 2-)
 
-    # check if we already have aws vault installed
-    current=$(aws-vault --version 2> /dev/null)
+    # check if we already have aws vault installed - for some fucking reason it outputs the version number to stderr and not stdout...
+    current=$(aws-vault --version 2>&1)
 
-    sb::spinner stop 0 "${current:+"Current v${current} / "}${latest:+"Latest v${latest}"}"
+    # if the command failed then it's not installed so current should be blank
+    if [[ $? -ne 0 ]]; then
+        current=""
+    else
+        # skip the 'v' at the start of the output
+        current=${current:1}
+    fi
+
+    sb::spinner stop 0 "${current:+"Current ${current} / "}${latest:+"Latest v${latest}"}"
 
     if [ "${current}" == "${latest}" ]; then
         sb::success "Latest version already installed"
@@ -175,16 +186,14 @@ function sb::install_aws_vault {
 
     sb::spin "Downloading..." "wget -O /tmp/aws-vault https://github.com/99designs/aws-vault/releases/download/v${latest}/aws-vault-linux-${arch}"
 
-    chmod a+x /tmp/aws-vault
+    chmod a+x /tmp/aws-vault >2 $SB_LOG_FILE
 
     sb::spin "Installing..." "sudo cp /tmp/aws-vault /usr/local/bin/aws-vault"
 
-    current=$(aws-vault --version 2> /dev/null)
+    current=$(aws-vault --version 2>&1)
 
-    echo $current
-
-    if [ ! -z "${current}" ]; then
-        sb::success "v${current} installed"
+    if [[ $? -eq 0 ]]; then
+        sb::success "${current} installed"
     else
         sb::fail
     fi
