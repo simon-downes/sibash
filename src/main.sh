@@ -18,15 +18,29 @@ function main {
     local fn=$1
 
     # determines if function exists
-    #declare -F "sb::${fn}"
+
+    if [[ -z "$fn" ]]; then
+        usage
+        exit 1
+    fi
 
     case "${fn}" in
+
         install)
             (eval "sb::${fn}_${2}")
         ;;
 
         *)
+
+            # no function with the given name so display usage instead
+            if [[ ! $(declare -F "sb::${fn}") ]]; then
+                usage
+                exit 1
+            fi
+
+            # otherwise run the command in the current context
             (eval "sb::${fn} "\"${@:2}\""")
+
         ;;
     esac
 

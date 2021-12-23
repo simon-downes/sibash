@@ -21,6 +21,16 @@ function sb::install {
 
 }
 
+function sb::install_everything {
+
+    sb::install_common && echo "" \
+        && sb::install_php && echo "" \
+        && sb::install_aws_cli && echo "" \
+        && sb::install_terraform && echo "" \
+        && sb::install_docker
+
+}
+
 # Install common packages
 function sb::install_common {
 
@@ -130,8 +140,55 @@ function sb::install_aws_cli {
     if [ ! -z "${current}" ]; then
         sb::success "v${current} installed"
     else
-        sb::failed
+        sb::fail
     fi
+
+}
+
+function sb::install_aws_vault {
+
+
+    local current latest desired arch
+
+    sb::header "Installing AWS Vault:"
+
+    sb::spinner start "Version Check..."
+
+    # find latest version
+    latest=$(curl -fs https://api.github.com/repos/99designs/aws-vault/releases/latest | jq --raw-output '.tag_name' | cut -c 2-)
+
+    # check if we already have aws vault installed
+    current=$(aws-vault --version 2> /dev/null)
+
+    sb::spinner stop 0 "${current:+"Current v${current} / "}${latest:+"Latest v${latest}"}"
+
+    if [ "${current}" == "${latest}" ]; then
+        sb::success "Latest version already installed"
+        return
+    fi
+
+    # check system architecture, default to x86_64
+    arch=amd64
+    if [ $(uname -m) = "aarch64" ]; then
+        arch=arm64
+    fi
+
+    sb::spin "Downloading..." "wget -O /tmp/aws-vault https://github.com/99designs/aws-vault/releases/download/v${latest}/aws-vault-linux-${arch}"
+
+    chmod a+x /tmp/aws-vault
+
+    sb::spin "Installing..." "sudo cp /tmp/aws-vault /usr/local/bin/aws-vault"
+
+    current=$(aws-vault --version 2> /dev/null)
+
+    echo $current
+
+    if [ ! -z "${current}" ]; then
+        sb::success "v${current} installed"
+    else
+        sb::fail
+    fi
+
 
 }
 
@@ -177,7 +234,7 @@ function sb::install_terraform {
     if [ ! -z "${current}" ]; then
         sb::success "v${current} installed"
     else
-        sb::failed
+        sb::fail
     fi
 
 }
@@ -199,5 +256,13 @@ function sb::install_docker {
     sb::install "Packages" docker-ce docker-ce-cli containerd.io
 
     sb::spin "Adding User to Docker Group" "sudo usermod -aG docker ${USER}"
+
+    current=$(docker --version | cut -d, -f1 | cut -d" " -f3)
+
+    if [ ! -z "${current}" ]; then
+        sb::success "v${current} installed"
+    else
+        sb::fail
+    fi
 
 }

@@ -125,7 +125,7 @@ function sb::spin {
 
     echo "" >> ${log}
 
-    $(sb::info $cmd 2> ${log})
+    $(sb::info $cmd 2>> ${log})
 
     $($cmd >> ${log} 2>&1)
 
