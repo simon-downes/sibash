@@ -35,7 +35,7 @@ function sb::install_everything {
 function sb::install_common {
 
     sb::install "Common Packages" apt-transport-https ca-certificates software-properties-common \
-        python-is-python3 python3-pip curl wget jq zip
+        python-is-python3 python3-pip curl wget jq zip micro
 
     if [ $? -eq 0 ]; then
         sb::success
@@ -45,15 +45,20 @@ function sb::install_common {
 
 }
 
-# Install PHP 8.0 CLI and Composer
+# Install PHP CLI and Composer
 function sb::install_php {
 
-    sb::header "Installing PHP 8:"
+    local php_version
+
+    php_version="8.1"
+
+    sb::header "Installing PHP ${php-version}:"
 
     sb::spin "Adding APT Repository..." "sudo add-apt-repository -yu ppa:ondrej/php"
 
-    sb::install "Packages" php8.0-cli php8.0-common php8.0-curl php8.0-mbstring php8.0-mysql \
-            php8.0-odbc php8.0-opcache php8.0-pgsql php8.0-readline php8.0-sqlite3 php8.0-xml
+    sb::install "Packages" php${php-version}-cli php${php-version}-common php${php-version}-curl php${php-version}-mbstring \
+        php${php-version}-mysql php${php-version}-odbc php${php-version}-opcache php${php-version}-pgsql \
+        php${php-version}-readline php${php-version}-sqlite3 php${php-version}-xml
 
     if [ $? -eq 0 ]; then
         sb::success "v$(php --version | head -n 1 | cut -d" " -f2) installed"
@@ -197,7 +202,6 @@ function sb::install_aws_vault {
     else
         sb::fail
     fi
-
 
 }
 
