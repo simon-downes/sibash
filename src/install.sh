@@ -52,13 +52,13 @@ function sb::install_php {
 
     php_version="8.1"
 
-    sb::header "Installing PHP ${php-version}:"
+    sb::header "Installing PHP ${php_version}:"
 
     sb::spin "Adding APT Repository..." "sudo add-apt-repository -yu ppa:ondrej/php"
 
-    sb::install "Packages" php${php-version}-cli php${php-version}-common php${php-version}-curl php${php-version}-mbstring \
-        php${php-version}-mysql php${php-version}-odbc php${php-version}-opcache php${php-version}-pgsql \
-        php${php-version}-readline php${php-version}-sqlite3 php${php-version}-xml
+    sb::install "Packages" php${php_version}-cli php${php_version}-common php${php_version}-curl php${php_version}-mbstring \
+        php${php_version}-mysql php${php_version}-odbc php${php_version}-opcache php${php_version}-pgsql \
+        php${php_version}-readline php${php_version}-sqlite3 php${php_version}-xml
 
     if [ $? -eq 0 ]; then
         sb::success "v$(php --version | head -n 1 | cut -d" " -f2) installed"
