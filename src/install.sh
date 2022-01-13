@@ -3,7 +3,10 @@
 # This file is part of the simon-downes/sibash package which is distributed under the MIT License.
 # See LICENSE.md or go to https://github.com/simon-downes/sibash for full license details.
 #
-# Defines common/core functions used throughout the framework
+# TODO: Install Dart Sass
+# TODO: Install AWS CLI Session Manager Plugin:
+#       https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
+# TODO: Install Poetry (Python)
 #
 # /HEADER
 
@@ -35,7 +38,7 @@ function sb::install_everything {
 function sb::install_common {
 
     sb::install "Common Packages" apt-transport-https ca-certificates software-properties-common \
-        python-is-python3 python3-pip curl wget jq zip micro
+        python-is-python3 python3-pip python3.8-venv curl wget jq zip micro
 
     if [ $? -eq 0 ]; then
         sb::success
@@ -271,6 +274,54 @@ function sb::install_docker {
     sb::spin "Adding User to Docker Group" "sudo usermod -aG docker ${USER}"
 
     current=$(docker --version | cut -d, -f1 | cut -d" " -f3)
+
+    if [ ! -z "${current}" ]; then
+        sb::success "v${current} installed"
+    else
+        sb::fail
+    fi
+
+}
+
+# Install latest version of Hugo
+function sb::install_hugo {
+
+    local current latest desired arch
+
+    sb::header "Installing Hugo:"
+
+    sb::spinner start "Version Check..."
+
+    # find latest hugo version
+    latest=$(curl -fs https://api.github.com/repos/gohugoio/hugo/releases/latest | jq --raw-output '.tag_name' | cut -c 2-)
+
+    # check if we already have hugo installed
+    current=$(hugo version 2> /dev/null | cut -d"-" -f1 | cut -d"v" -f2)
+
+    sb::spinner stop 0 "${current:+"Current v${current} / "}${latest:+"Latest v${latest}"}"
+
+    if [ "${current}" == "${latest}" ]; then
+        sb::success "Latest version already installed"
+        return
+    fi
+
+    # check system architecture, default to x86_64
+    arch=amd64
+    if [ $(uname -m) = "aarch64" ]; then
+        sb::fail "ARM binary must be compiled/installed manually"
+        return 1
+    fi
+
+    sb::spin "Downloading..." "wget -O /tmp/hugo.tar.gz https://github.com/gohugoio/hugo/releases/download/v${latest}/hugo_extended_${latest}_Linux-64bit.tar.gz"
+
+    sb::spin "Extracting..." "tar -xvzf /tmp/hugo.tar.gz --directory /tmp"
+
+    sb::spin "Installing..." "sudo mv /tmp/hugo /usr/local/bin/hugo"
+
+    # clean up
+    rm -f /tmp/hugo.tar.gz
+
+    current=$(hugo version 2> /dev/null | cut -d"-" -f1 | cut -d"v" -f2)
 
     if [ ! -z "${current}" ]; then
         sb::success "v${current} installed"
