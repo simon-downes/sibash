@@ -330,3 +330,99 @@ function sb::install_hugo {
     fi
 
 }
+
+# Install latest version of Caddy webserver
+function sb::install_caddy {
+
+    local current latest desired arch
+
+    sb::header "Installing Caddy:"
+
+    sb::spinner start "Version Check..."
+
+    # find latest hugo version
+    latest=$(curl -fs https://api.github.com/repos/caddyserver/caddy/releases/latest | jq --raw-output '.tag_name' | cut -c 2-)
+
+    # check if we already have hugo installed
+    current=$(caddy version 2> /dev/null | cut -d" " -f1 | cut -d"v" -f2)
+
+    sb::spinner stop 0 "${current:+"Current v${current} / "}${latest:+"Latest v${latest}"}"
+
+    if [ "${current}" == "${latest}" ]; then
+        sb::success "Latest version already installed"
+        return
+    fi
+
+    # check system architecture, default to x86_64
+    arch=amd64
+    if [ $(uname -m) = "aarch64" ]; then
+        arch=armv7
+    fi
+
+    sb::spin "Downloading..." "wget -O /tmp/caddy.tar.gz https://github.com/caddyserver/caddy/releases/download/v${latest}/caddy_${latest}_linux_${arch}.tar.gz"
+
+    sb::spin "Extracting..." "tar -xvzf /tmp/caddy.tar.gz --directory /tmp"
+
+    sb::spin "Installing..." "sudo mv /tmp/caddy /usr/local/bin/caddy"
+
+    # clean up
+    rm -f /tmp/caddy.tar.gz
+
+    current=$(caddy version 2> /dev/null | cut -d" " -f1 | cut -d"v" -f2)
+
+    if [ ! -z "${current}" ]; then
+        sb::success "v${current} installed"
+    else
+        sb::fail
+    fi
+
+}
+
+# Install latest version of Hugo
+function sb::install_sass {
+
+    local current latest desired arch
+
+    sb::header "Installing Dart Sass:"
+
+    sb::spinner start "Version Check..."
+
+    # find latest hugo version
+    latest=$(curl -fs https://api.github.com/repos/sass/dart-sass/releases/latest | jq --raw-output '.tag_name')
+
+    # check if we already have hugo installed
+    current=$(sass --version 2> /dev/null)
+
+    sb::spinner stop 0 "${current:+"Current v${current} / "}${latest:+"Latest v${latest}"}"
+
+    if [ "${current}" == "${latest}" ]; then
+        sb::success "Latest version already installed"
+        return
+    fi
+
+    # check system architecture, default to x86_64
+    arch=x64
+    if [ $(uname -m) = "aarch64" ]; then
+        sb::fail "ARM binary must be compiled/installed manually"
+        return 1
+    fi
+
+    sb::spin "Downloading..." "wget -O /tmp/sass.tar.gz https://github.com/sass/dart-sass/releases/download/${latest}/dart-sass-${latest}-linux-x64.tar.gz"
+
+    sb::spin "Extracting..." "tar -xvzf /tmp/sass.tar.gz --directory /tmp"
+
+    sb::spin "Installing..." "sudo mv /tmp/dart-sass/sass /usr/local/bin/sass"
+
+    # clean up
+    rm -f /tmp/sass.tar.gz
+    rm -rf /tmp/dart-sass
+
+    current=$(sass --version 2> /dev/null)
+
+    if [ ! -z "${current}" ]; then
+        sb::success "v${current} installed"
+    else
+        sb::fail
+    fi
+
+}
