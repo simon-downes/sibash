@@ -27,7 +27,11 @@ function main {
     case "${fn}" in
 
         install)
-            (eval "sb::${fn}_${2}")
+            if [ -z $2 ]; then
+                (eval "sb::${fn}")
+            else
+                (eval "sb::${fn}_${2}")
+            fi
         ;;
 
         *)

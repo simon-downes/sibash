@@ -20,6 +20,23 @@ function sb::install {
     what="$1"
     packages=${@:2}
 
+    if [ -z "$what" ]; then
+        echo "Nothing specified to install!"
+        echo "Available options:"
+        echo " - everything"
+        echo " - common - handy stuff"
+        echo " - php - 8.1"
+        echo " - composer - latest version of php package manager"
+        echo " - aws_cli"
+        echo " - aws_vault"
+        echo " - terraform - latest version"
+        echo " - docker"
+        echo " - hugo"
+        echo " - caddy - lateste version of caddy webserver"
+        echo " - sass - dart sass binary"
+        return
+    fi
+
     sb::spin "Installing ${what}..." "sudo apt-get install -y ${packages}"
 
 }
@@ -38,7 +55,7 @@ function sb::install_everything {
 function sb::install_common {
 
     sb::install "Common Packages" apt-transport-https ca-certificates software-properties-common \
-        python-is-python3 python3-pip python3.8-venv curl wget jq zip micro
+        python-is-python3 python3-pip python3-venv curl wget jq zip
 
     if [ $? -eq 0 ]; then
         sb::success
@@ -269,7 +286,7 @@ function sb::install_docker {
 
     sb::apt_update
 
-    sb::install "Packages" docker-ce docker-ce-cli containerd.io
+    sb::install "Packages" docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
     sb::spin "Adding User to Docker Group" "sudo usermod -aG docker ${USER}"
 
