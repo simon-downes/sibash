@@ -1,14 +1,8 @@
-#!/bin/bash
-#
-# This file is part of the simon-downes/sibash package which is distributed under the MIT License.
-# See LICENSE.md or go to https://github.com/simon-downes/sibash for full license details.
-#
+
 # TODO: Install Dart Sass
 # TODO: Install AWS CLI Session Manager Plugin:
 #       https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
 # TODO: Install Poetry (Python)
-#
-# /HEADER
 
 # Install APT packages with a spinner
 # $1:  message to show before the spinner
@@ -51,48 +45,75 @@ function sb::install_everything {
 
 }
 
-# Install common packages
-function sb::install_common {
+function sb.install.packages {
 
-    sb::install "Common Packages" apt-transport-https ca-certificates software-properties-common \
-        python-is-python3 python3-pip python3-venv curl wget jq zip
+    local packages package
 
-    if [ $? -eq 0 ]; then
-        sb::success
-    else
-        sb::fail
-    fi
+    packages=$@
+
+    sb.sudo
+
+    printf "\n${SB_INFO}Installing Packages:${SB_RESET}\n\n"
+
+    sb.list $packages
+
+    echo
+
+    sb.input.proceed && {
+
+        sb.spinner.run "Installing... " "sudo apt-get install -qy --dry-run ${packages}"
+
+        if [ $? -ne 0 ]; then
+            echo $(tail -n 1 $SB_LOG_FILE)
+        fi
+
+    }
+
+}
+
+
+# Install core things that should probably be everywhere already anyway
+function sb.install.core {
+
+    sb.install.packages apt-transport-https ca-certificates software-properties-common python-is-python3 python3-pip python3-venv curl wget jq zip
 
 }
 
 # Install PHP CLI and Composer
-function sb::install_php {
+function sb.install.php {
 
     local php_version
 
-    php_version="8.1"
+    php_version=${1:-"8.2"}
 
-    sb::header "Installing PHP ${php_version}:"
+    sb.sudo
 
-    sb::spin "Adding APT Repository..." "sudo add-apt-repository -yu ppa:ondrej/php"
+    sb.header "Installing PHP ${php_version}"
 
-    sb::install "Packages" php${php_version}-cli php${php_version}-common php${php_version}-curl php${php_version}-mbstring \
-        php${php_version}-mysql php${php_version}-odbc php${php_version}-opcache php${php_version}-pgsql \
-        php${php_version}-readline php${php_version}-sqlite3 php${php_version}-xml
+    sb.spinner.run "Adding APT Repository... " "sudo add-apt-repository -yu ppa:ondrej/php"
 
-    if [ $? -eq 0 ]; then
-        sb::success "v$(php --version | head -n 1 | cut -d" " -f2) installed"
-    else
-        sb::fail
-    fi
+    sb.install.packages php${php_version}-cli
 
-    echo ""
-    sb::install_composer
+    # sb.install.packages php${php_version}-cli php${php_version}-common php${php_version}-curl php${php_version}-mbstring \
+    #     php${php_version}-mysql php${php_version}-odbc php${php_version}-opcache php${php_version}-pgsql \
+    #     php${php_version}-readline php${php_version}-sqlite3 php${php_version}-xml
+
+
+
+
+    # if [ $? -eq 0 ]; then
+    #     sb::success "v$(php --version | head -n 1 | cut -d" " -f2) installed"
+    # else
+    #     sb::fail
+    # fi
+
+    # echo ""
+    # sb::install_composer
 
 }
 
 # Install latest version of PHP Composer
-function sb::install_composer {
+function sb.install.composer {
 
     local current checksum
 
