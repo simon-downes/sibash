@@ -9,7 +9,7 @@ function sb.prompt.on {
 
     # if prompt command is already set to our prompt then do nothing
     if [ "${PROMPT_COMMAND}" == "_sb.prompt.build"  ]; then
-        return 1
+        return
     fi
 
     # store current prompt

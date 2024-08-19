@@ -1,4 +1,10 @@
 
+# default log file
+export SB_LOG_FILE=${SB_LOG_FILE:-~/sb.log}
+
+# grab cpu architecture
+export SB_CPU_ARCH=$(uname -m)
+
 # Restart the sudo timer or prompt for sudo password
 function sb.sudo {
 

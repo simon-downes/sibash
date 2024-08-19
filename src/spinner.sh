@@ -73,7 +73,7 @@ function sb.spinner.stop {
 
     fi
 
-    # output result status
+    # output result status - start with a backspace to erase the spinner character
     printf "\b[ ${result} ]\n"
 
 }
@@ -82,7 +82,8 @@ function sb.spinner.go {
 
     local frame_index frames delay
 
-    sb::spinner_kill
+    # kill current spinner if there is one
+    sb.is.empty $SB_SPINNER_PID || _sb.spinner.kill
 
     frame_index=1
     frames="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
@@ -103,5 +104,6 @@ function sb.spinner.go {
 function _sb.spinner.kill {
 
     kill $SB_SPINNER_PID > /dev/null 2>&1
+    unset SB_SPINNER_PID
 
 }

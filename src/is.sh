@@ -3,6 +3,10 @@ function sb.is.command {
     command -v $1 > /dev/null 2>&1
 }
 
+function sb.is.interactive {
+    [[ $- == *i* ]]
+}
+
 function sb.is.true {
     case $(sb.lower <<<"$1") in
         yes|y|true|on|1)
@@ -16,8 +20,16 @@ function sb.is.empty {
     [ -z "$1" ]
 }
 
+function sb.is.not_empty {
+    [ ! -z "$1" ]
+}
+
 function sb.is.zero {
     [ "$1" -eq 0 ] 2> /dev/null
+}
+
+function sb.is.not_zero {
+    [ ! "$1" -eq 0 ] 2> /dev/null
 }
 
 function sb.is.file {

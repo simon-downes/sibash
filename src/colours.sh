@@ -36,3 +36,5 @@ export SB_DEBUG=${SB_DEBUG:-$SB_GRAY}
 
 export SB_FAIL=${SB_FAIL:-$SB_RED}
 export SB_SUCCESS=${SB_SUCCESS:-$SB_GREEN}
+
+export SB_BULLET="${SB_CYAN}-${SB_RESET}"
