@@ -1,3 +1,6 @@
+# ------------------------------------------------------------------------------
+# Spinner Functions
+# ------------------------------------------------------------------------------
 
 # show a message and spinner whilst running a command
 # $1: the message to display before the spinner
