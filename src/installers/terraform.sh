@@ -29,7 +29,6 @@ function sb.install.terraform {
     sb.is.cpu_arm && arch=arm64
 
     sb.spinner.run "Downloading... " "wget -nv -O /tmp/terraform.zip https://releases.hashicorp.com/terraform/${latest}/terraform_${latest}_linux_${arch}.zip" && \
-    # sb.spinner.run "Downloading... " "wget -O /tmp/terraform.zip https://releases.hashicorp.com/terraform/1.5.6/terraform_1.5.6_linux_${arch}.zip" && \
 
         sb.spinner.run "Extracting... " "unzip -o /tmp/terraform.zip -d /tmp" && \
 

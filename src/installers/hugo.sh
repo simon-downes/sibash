@@ -1,3 +1,4 @@
+
 function sb.install.hugo {
 
     local current latest arch
