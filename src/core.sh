@@ -18,6 +18,11 @@ function sb.sudo {
 
 }
 
+# a nicer output for dig - basically only show the records and not the query server deets, etc
+function sb.dig() {
+    dig +nocmd "$1" any +multiline +noall +answer;
+}
+
 function sb.lower {
 
     sb.is.empty "$1" && {
