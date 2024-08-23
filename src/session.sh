@@ -55,6 +55,14 @@ function sb.session.init {
     # Other Stuff
     # --------------------------------------------------------------------------
 
+    # make less more friendly for non-text input files, see lesspipe(1)
+    [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+    # enable bash completion
+    if ! shopt -oq posix; then
+        sb.session.source_first /usr/share/bash-completion/bash_completion /etc/bash_completion
+    fi
+
     # WSL stuff
     # https://stackoverflow.com/questions/61110603/how-to-set-up-working-x11-forwarding-on-wsl2
     sb.is.wsl && {
@@ -68,6 +76,17 @@ function sb.session.init {
 
     # use our nice prompt
     sb.prompt.on
+
+}
+
+function sb.session.source_first {
+
+    for f in "$@"; do
+        sb.is.file $f && {
+            . $f
+            return
+        }
+    done
 
 }
 
