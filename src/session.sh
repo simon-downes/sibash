@@ -144,6 +144,13 @@ function sb.session.aliases {
         alias egrep='egrep --color=auto'
     fi
 
+    # if we have aws-vault installed then set the backend to file and create an alias
+    # that will cat the password from a file to an env var when the command is run
+    sb.is.command aws-vault && {
+        export AWS_VAULT_BACKEND="file"
+        alias av='eval AWS_VAULT_FILE_PASSPHRASE=$(cat ~/.awsvault/pw) aws-vault'
+    }
+
     # git aliases
     sb.is.command git && {
 
