@@ -39,6 +39,10 @@ function sb.version.latest {
             curl -fs https://api.github.com/repos/sass/dart-sass/releases/latest | jq --raw-output '.tag_name'
         ;;
 
+        uv)
+            curl -fs https://api.github.com/repos/astral-sh/uv/releases/latest | jq --raw-output '.tag_name'
+        ;;
+
         *)
             sb.error Unknown program: ${SB_INFO}${what}${SB_RESET}
         ;;
@@ -92,6 +96,10 @@ function sb.version.current {
 
         sass)
             sass --version
+        ;;
+
+        uv)
+            uv version | cut -d " " -f2
         ;;
 
         *)
