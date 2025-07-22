@@ -59,6 +59,11 @@ function sb.is.wsl {
     grep -qsi Microsoft /proc/sys/kernel/osrelease
 }
 
+function sb.is.macos {
+    # https://stackoverflow.com/a/8597411
+    [[ "$OSTYPE" == "darwin"* ]]
+}
+
 function sb.is.cpu_arm {
 
     sb.is.empty "${SB_CPU_ARCH}" && {

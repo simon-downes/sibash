@@ -23,7 +23,12 @@ function sb.prompt.on {
     _sb_root_pid=$BASHPID
 
     # determine where we're storing the command timer data
-    _sb_cmd_timer_data=/dev/shm/${USER}.cmd_timer.${_sb_root_pid}
+    # use an appropriate in-memory filesystem just cos
+    sb.is.macos && {
+        _sb_cmd_timer_data=/private/tmp/${USER}.cmd_timer.${_sb_root_pid}
+    } || {
+        _sb_cmd_timer_data=/dev/shm/${USER}.cmd_timer.${_sb_root_pid}
+    }
 
     # # run command timer function before each command
     trap "_sb.prompt.cmd_timer" DEBUG
@@ -188,7 +193,7 @@ function _sb.prompt.build {
     # if last command failed then prompt is red and includes exit code
     if [ $_exit != 0 ]; then
         prompt_colour="${red}"
-        _exit="${prompt_colour}🗙 ${_exit} ${reset}"
+        _exit="${prompt_colour}✘ ${_exit} ${reset}"
     else
         _exit="${prompt_colour}✔ ${reset}"
     fi
